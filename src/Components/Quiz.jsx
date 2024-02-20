@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import questions from "../questions.js";
+import Summary from "./Summary.jsx";
 
 const text = questions.map((question) => question.text);
 
@@ -11,52 +12,63 @@ const TIMER = 6000;
 
 export default function Quiz() {
   const [index, setIndex] = useState(0);
-
-  const handleChangeAnswer = () => {
-    if (index < 6) {
-      setIndex((prev) => prev + 1);
-    } else {
-      setIndex(index);
-    }
-  };
+  const [remainingTime, setRemainingTime] = useState(TIMER);
 
   useEffect(() => {
-    setTimeout(() => {
-      if (index < 6) {
+    const timeout = setTimeout(() => {
+      console.log("timeout");
+      if (index < answers.length) {
         setIndex((prev) => prev + 1);
+        setRemainingTime(TIMER);
       } else {
         setIndex(index);
       }
     }, TIMER);
+
+    return () => {
+      clearTimeout(timeout);
+    };
   }, [index]);
 
-  // const [remainingTime, setRemainingTime] = useState(TIMER);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log("interval");
+      setRemainingTime((prevTime) => {
+        if (prevTime <= 0) {
+          clearInterval(interval);
+          return TIMER;
+        } else if (index >= answers.length) {
+          clearInterval(interval);
+        } else {
+          return prevTime - 15;
+        }
+      });
+    }, 15);
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     console.log("interval");
-  //     setRemainingTime((prevTime) => prevTime - 10);
-  //   }, 10);
-
-  //   return () => {
-  //     clearInterval(interval);
-  //   };
-  // }, []);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [remainingTime]);
 
   return (
-    <div id="quiz">
-      <div id="question">
-        {/* <progress value={remainingTime} max={5000} /> */}
-        <h2>{text[index]}</h2>
-        <ul id="answers">
-          {answers[index].map((answer, index) => (
-            <li className="answer" key={index}>
-              <button>{answer}</button>
-            </li>
-          ))}
-        </ul>
-        <button onClick={handleChangeAnswer}>Change Answer</button>
-      </div>
-    </div>
+    <>
+      {index < 7 ? (
+        <div id="quiz">
+          <div id="question">
+            <progress value={remainingTime} max={TIMER} />
+            <h2>{text[index]}</h2>
+            <ul id="answers">
+              {answers[index].map((answer, index) => (
+                <li className="answer" key={index}>
+                  <button>{answer}</button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      ) : (
+        <Summary />
+      )}
+    </>
   );
 }

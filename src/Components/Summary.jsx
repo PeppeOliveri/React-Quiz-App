@@ -1,4 +1,5 @@
 import completedImg from "../assets/quiz-complete.png";
+import questions from "../questions.js";
 
 export default function Summary() {
   return (
@@ -6,11 +7,13 @@ export default function Summary() {
       <img src={completedImg} />
       <h2>QUIZ COMPLETED</h2>
       <ol>
-        <li>
-          <h3>1</h3>
-          <p className="question">Question</p>
-          <p className="user-answer">Answer</p>
-        </li>
+        {questions.map((question) => (
+          <li key={question.id}>
+            <h3>{question.id.replace("q", "")}</h3>
+            <p className="question">{question.text}</p>
+            <p className="user-answer">Answer</p>
+          </li>
+        ))}
       </ol>
     </div>
   );
