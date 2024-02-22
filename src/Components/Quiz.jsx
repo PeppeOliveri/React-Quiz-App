@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import questions from "../questions.js";
 import Summary from "./Summary.jsx";
 
@@ -13,10 +13,31 @@ const TIMER = 6000;
 export default function Quiz() {
   const [index, setIndex] = useState(0);
   const [remainingTime, setRemainingTime] = useState(TIMER);
+  const [answerChoice, setAnswerChoice] = useState([]);
+
+  function handleAnswerChoice(answer) {
+    setAnswerChoice((prevState) => {
+      return [...prevState, answer];
+    });
+  }
+
+  // const userAnswers = answers.map((answer, idx) => {
+  //   const userAnswer = answerChoice[idx];
+  //   return userAnswer === answer[0];
+  // });
+  // console.log(userAnswers);
+  // const correctAnswer = userAnswers.filter((answer) => {
+  //   if (answer === true) {
+  //     return answer;
+  //   }
+  // });
+  // console.log(correctAnswer);
+
+  // const wrongAnswer = userAnswers.filter((answer) => answer === false);
+  // // console.log(wrongAnswer);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      console.log("timeout");
       if (index < answers.length) {
         setIndex((prev) => prev + 1);
         setRemainingTime(TIMER);
@@ -32,7 +53,6 @@ export default function Quiz() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      console.log("interval");
       setRemainingTime((prevTime) => {
         if (prevTime <= 0) {
           clearInterval(interval);
@@ -58,16 +78,21 @@ export default function Quiz() {
             <progress value={remainingTime} max={TIMER} />
             <h2>{text[index]}</h2>
             <ul id="answers">
-              {answers[index].map((answer, index) => (
-                <li className="answer" key={index}>
-                  <button>{answer}</button>
+              {answers[index].map((answer, answerIndex) => (
+                <li className="answer" key={answerIndex}>
+                  <button
+                    onClick={() => handleAnswerChoice(answer)}
+                    className={answerChoice[index] === answer ? "correct" : ""}
+                  >
+                    {answer}
+                  </button>
                 </li>
               ))}
             </ul>
           </div>
         </div>
       ) : (
-        <Summary />
+        <Summary answerChoice={answerChoice} />
       )}
     </>
   );
